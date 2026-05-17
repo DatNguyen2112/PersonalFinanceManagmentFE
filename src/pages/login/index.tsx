@@ -1,4 +1,4 @@
-import { Wallet, Mail, Lock, Loader, AlertCircle } from 'lucide-react';
+import { Wallet, Mail, Lock, Loader } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { routerLinks } from '../../router-links';
 import { useGlobalFacade } from '../../store/global/facade';

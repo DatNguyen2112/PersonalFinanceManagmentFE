@@ -1,10 +1,10 @@
 import { useAppDispatch, useTypedSelector } from '..';
-import { globalAction, type GlobalState, type LoginModel, type Auth } from './slice';
+import { globalAction, type GlobalState, type LoginModel } from './slice';
 
 export const useGlobalFacade = () => {
     const dispatch = useAppDispatch();
     return {
-        ...(useTypedSelector((state) => state[globalAction.name]) as GlobalState),
+        ...(useTypedSelector((state: any) => state[globalAction.name]) as GlobalState),
         set: (values: GlobalState) => dispatch(globalAction.set(values)),
         logout: () => dispatch(globalAction.logout()),
         profile: () => dispatch(globalAction.profile()),
