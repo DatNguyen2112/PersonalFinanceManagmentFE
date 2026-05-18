@@ -15,7 +15,7 @@ export default function Login() {
 
     useEffect(() => {
         if (globalFacade.status === EStatusGlobal.loginFulfilled) {
-            navigate(`${routerLinks('Login')}`);
+            navigate(`${routerLinks('Dashboard')}`);
         }
     }, [globalFacade.status]);
 

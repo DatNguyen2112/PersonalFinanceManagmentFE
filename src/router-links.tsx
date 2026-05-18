@@ -197,6 +197,8 @@ export const routerLinks = (name: string, type?: string) => {
         Project: '/projects',
         SystemUserSub: '/system-user-sub',
         ResourceView: '/resource-view',
+
+        Transactions: '/transactions',
     }; // 💬 generate api to here
     switch (type) {
         case 'api':

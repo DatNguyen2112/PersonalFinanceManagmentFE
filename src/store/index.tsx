@@ -3,10 +3,12 @@ import { type TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux
 import { Action } from './action';
 import { globalSlice } from './global/slice';
 import { Slice, type State } from './slice';
+import { transactionsSlice } from './transactions/slice';
 
 // ✅ Define rootReducer FIRST
 const rootReducer = combineReducers({
   [globalSlice.name]: globalSlice.reducer,
+  [transactionsSlice.name]: transactionsSlice.reducer,
 });
 
 const setupStore = () => {

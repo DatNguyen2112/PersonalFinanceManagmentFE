@@ -161,7 +161,7 @@ const renderPages = (pages: (NormalPage | LayoutPage)[]) => {
 const Pages: FC = () => {
     return (
         <Routes>
-            <Route path={'/'}>{renderPages(pages)}</Route>
+            {renderPages(pages as any)}
             <Route path="*" element={<Navigate to={`${routerLinks('Login')}`} replace />} />
         </Routes>
     );

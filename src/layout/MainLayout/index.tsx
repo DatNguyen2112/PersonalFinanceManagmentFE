@@ -33,7 +33,7 @@ export default function Layout({ onLogout, userEmail }: Props) {
     const location = useLocation();
     const globalFacade = useGlobalFacade();
 
-    const currentUserEmail = userEmail || globalFacade.user?.email || globalFacade.user?.user?.email || 'user@example.com';
+    const currentUserEmail = userEmail || globalFacade.user?.user?.email || 'user@example.com';
 
     const handleLogout = async () => {
         if (onLogout) {
