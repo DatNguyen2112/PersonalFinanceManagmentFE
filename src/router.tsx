@@ -31,6 +31,32 @@ const pages = [
             },
         ],
     },
+    {
+        layout: React.lazy(() => import('../src/layout/MainLayout')),
+        isPublic: false,
+        child: [
+            {
+                path: routerLinks('Dashboard'),
+                component: React.lazy(() => import('../src/pages/Dashboard')),
+            },
+            {
+                path: routerLinks('Transactions'),
+                component: React.lazy(() => import('../src/pages/Transactions')),
+            },
+            {
+                path: routerLinks('Budget'),
+                component: React.lazy(() => import('../src/pages/Budget')),
+            },
+            {
+                path: routerLinks('Reports'),
+                component: React.lazy(() => import('../src/pages/Reports')),
+            },
+            {
+                path: routerLinks('Wallets'),
+                component: React.lazy(() => import('../src/pages/Wallets')),
+            },
+        ],
+    },
     // {
     //     layout: React.lazy(() => import('../src/layouts/admin')),
     //     isPublic: false,

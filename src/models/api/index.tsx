@@ -55,3 +55,5 @@ export class Pagination<T> {
     public first?: boolean;
     public last?: boolean;
 }
+
+export type Page = 'dashboard' | 'transactions' | 'budget' | 'reports' | 'wallets';

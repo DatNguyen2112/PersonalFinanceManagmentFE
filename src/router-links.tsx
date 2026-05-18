@@ -8,7 +8,6 @@ export const routerLinks = (name: string, type?: string) => {
         VerifyForotPassword: '/verify-forgot-password',
         SetPassword: '/set-password',
         MyProfile: '/my-profile',
-        Dashboard: '/dashboard',
         User: '/users',
         Setting: '/setting',
         Data: '/signin-permission',
@@ -102,6 +101,12 @@ export const routerLinks = (name: string, type?: string) => {
         Project: '/projects',
         SystemUserAdmin: '/system-user-admin',
         ResourceView: '/resource-view',
+
+        Dashboard: '/dashboard',
+        Transactions: '/transactions',
+        Budget: '/budget',
+        Reports: '/reports',
+        Wallets: '/wallets',
     }; // 💬 generate link to here
     const apis: {
         [selector: string]: string;
