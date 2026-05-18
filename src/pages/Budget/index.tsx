@@ -1,5 +1,5 @@
 import { Card, Row, Col, Typography, Progress, Button, Space, Alert, Tag } from 'antd';
-import { PlusOutlined, InfoCircleOutlined, BulbOutlined, ClockCircleOutlined } from '@ant-design/icons';
+import { PlusOutlined, BulbOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import { PieChart, TrendingUp } from 'lucide-react';
 
 const { Title, Text } = Typography;

@@ -1,5 +1,5 @@
-import { Card, Row, Col, Typography, Space, Tag, Statistic, List } from 'antd';
-import { ArrowUpOutlined, ArrowDownOutlined, CreditCardOutlined } from '@ant-design/icons';
+import { Card, Row, Col, Typography, Space, Statistic, List } from 'antd';
+import { ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
 import { ArrowUpRight, ArrowDownRight, DollarSign, Wallet as WalletIcon, CreditCard, Activity, TrendingUp } from 'lucide-react';
 
 const { Title, Text } = Typography;
@@ -134,7 +134,7 @@ export default function Dashboard() {
                     >
                         <List
                             dataSource={recentActivities}
-                            renderItem={(act, i) => (
+                            renderItem={(act) => (
                                 <div className="flex items-center justify-between p-3 hover:bg-slate-50 rounded-xl transition-all duration-150 mb-2 last:mb-0">
                                     <div className="flex items-center gap-3">
                                         <div className={`p-2.5 ${act.color} rounded-xl flex items-center justify-center`}>
