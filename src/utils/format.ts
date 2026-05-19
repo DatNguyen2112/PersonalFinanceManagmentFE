@@ -3,7 +3,7 @@ export function formatShortVND(amount: number): string {
   if (amount >= 1_000_000) return `${(amount / 1_000_000).toFixed(1)}M`;
   if (amount >= 1_000) return `${(amount / 1_000).toFixed(0)}K`;
   if (amount <= 0) return `0đ`;
-  return amount.toString();
+  return amount?.toString();
 }
 
 export function formatDate(dateStr: string): string {

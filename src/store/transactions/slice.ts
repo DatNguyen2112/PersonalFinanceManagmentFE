@@ -33,6 +33,10 @@ export const EStatusTransactions = {
     getIncomeAndExpenseCategorySummaryPending: 'getIncomeAndExpenseCategorySummary.pending',
     getIncomeAndExpenseCategorySummaryFulfilled: 'getIncomeAndExpenseCategorySummary.fulfilled',
     getIncomeAndExpenseCategorySummaryRejected: 'getIncomeAndExpenseCategorySummary.rejected',
+
+    getAccountsPending: 'getAccounts.pending',
+    getAccountsFulfilled: 'getAccounts.fulfilled',
+    getAccountsRejected: 'getAccounts.rejected',
 } as const;
 
 export type EStatusTransactions = typeof EStatusTransactions[keyof typeof EStatusTransactions];
@@ -189,6 +193,15 @@ export class IncomeAndExpenseCategorySummary {
     }[];
 }
 
+export class Account {
+    public id?: number;
+    public accountNumber?: string;
+    public bankBrandName?: string;
+    public displayName?: string;
+    public lastSyncedAt?: string;
+    public status?: string;
+}
+
 export interface TransactionsState {
     [selector: string]: any;
     isLoading?: boolean;
@@ -198,6 +211,7 @@ export interface TransactionsState {
     budgetSummary?: BudgetSummary;
     incomeAndExpenseSummary?: IncomeAndExpenseSummary;
     incomeAndExpenseCategorySummary?: IncomeAndExpenseCategorySummary;
+    accounts?: Account[];
 }
 
 export class BudgetQueryModel {
@@ -229,6 +243,10 @@ export const action = {
     }),
     getIncomeAndExpenseCategorySummary: createAsyncThunk(name + 'getIncomeAndExpenseCategorySummary', async (params: BudgetQueryModel) => {
         const res = await API.get(`/personal-finance/reports/categories`, params);
+        return res;
+    }),
+    getAccounts: createAsyncThunk(name + 'getAccounts', async () => {
+        const res = await API.get(`/personal-finance/bank-accounts`);
         return res;
     }),
 };
@@ -323,6 +341,21 @@ export const transactionsSlice = createSlice(
         })
         builder.addCase(action.getIncomeAndExpenseCategorySummary.rejected, (state: TransactionsState) => {
             state.status = EStatusTransactions.getIncomeAndExpenseCategorySummaryRejected;
+            state.isLoading = false;
+        })
+        builder.addCase(action.getAccounts.pending, (state: TransactionsState) => {
+            state.isLoading = true;
+            state.status = EStatusTransactions.getAccountsPending;
+        })
+        builder.addCase(action.getAccounts.fulfilled, (state: TransactionsState, action: PayloadAction<any>) => {
+            if (action.payload) {
+                state.accounts = action.payload as Draft<Account[]>;
+                state.status = EStatusTransactions.getAccountsFulfilled;
+            } else state.status = EStatusState.idle;
+            state.isLoading = false;
+        })
+        builder.addCase(action.getAccounts.rejected, (state: TransactionsState) => {
+            state.status = EStatusTransactions.getAccountsRejected;
             state.isLoading = false;
         })
     }),

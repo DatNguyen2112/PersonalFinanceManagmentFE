@@ -1,155 +1,352 @@
-import { Card, Row, Col, Typography, Progress, Button, Space, Statistic } from 'antd';
-import { DownloadOutlined, ArrowUpOutlined, ArrowDownOutlined, CalendarOutlined } from '@ant-design/icons';
-
-const { Title, Text } = Typography;
+import { useEffect, useState } from "react";
+import { formatShortVND } from "../../utils/format";
+import { useTransactionsFacade } from "../../store/transactions/facade";
+import { TrendingDown, TrendingUp } from "lucide-react";
+import { BarChart } from "../../components/BarChart";
+import { DonutChart } from "../../components/DonutChart";
 
 export default function Reports() {
-    const categories = [
-        { name: 'Ăn uống', amount: '$540.00', pct: 35, strokeColor: '#3b82f6' },
-        { name: 'Nhà ở & Tiện ích', amount: '$450.00', pct: 25, strokeColor: '#6366f1' },
-        { name: 'Mua sắm thiết bị', amount: '$320.00', pct: 18, strokeColor: '#f43f5e' },
-        { name: 'Giải trí & Du lịch', amount: '$210.00', pct: 12, strokeColor: '#f59e0b' },
-        { name: 'Khác', amount: '$180.00', pct: 10, strokeColor: '#94a3b8' },
-    ];
+  const [year, setYear] = useState<number>(new Date().getFullYear());
+  const [activeTab, setActiveTab] = useState<string>("overview");
 
-    const chartCols = [
-        { month: 'T12', income: 64, expense: 48 },
-        { month: 'T01', income: 80, expense: 56 },
-        { month: 'T02', income: 72, expense: 64 },
-        { month: 'T03', income: 96, expense: 60 },
-        { month: 'T04', income: 88, expense: 72 },
-        { month: 'T05', income: 100, expense: 68 },
-    ];
+  const transactionsFacade = useTransactionsFacade();
 
-    return (
-        <Space direction="vertical" size="large" className="w-full">
-            {/* Header */}
-            <Row align="middle" justify="space-between" gutter={[16, 16]}>
-                <Col>
-                    <Title level={3} className="!mb-1">Báo cáo phân tích</Title>
-                    <Text type="secondary">Xem biểu đồ trực quan, phân tích xu hướng thu chi trong tháng.</Text>
-                </Col>
-                <Col>
-                    <Button
-                        icon={<DownloadOutlined />}
-                        size="large"
-                        className="border-slate-200 text-slate-600 rounded-xl font-semibold hover:border-blue-500 hover:text-blue-500 transition-colors"
-                    >
-                        Xuất báo cáo (PDF)
-                    </Button>
-                </Col>
-            </Row>
+  useEffect(() => {
+    if (activeTab == "overview") {
+      transactionsFacade.getIncomeAndExpenseSummary({
+        year: year,
+        month: new Date().getMonth() + 1,
+      });
+    } else {
+      transactionsFacade.getIncomeAndExpenseCategorySummary({
+        year: year,
+        month: new Date().getMonth() + 1,
+      });
+    }
+  }, [activeTab, year]);
 
-            {/* Quick Metrics */}
-            <Row gutter={[24, 24]}>
-                {[
-                    { label: 'Tổng chi tiêu', amount: 1850, change: -4, prefix: <ArrowDownOutlined className="text-emerald-500" />, suffix: '%', desc: 'Giảm so với tháng trước', color: 'text-emerald-500' },
-                    { label: 'Tổng thu nhập', amount: 3200, change: 8, prefix: <ArrowUpOutlined className="text-emerald-500" />, suffix: '%', desc: 'Tăng so với tháng trước', color: 'text-emerald-500' },
-                    { label: 'Số dư tích lũy', amount: 1350, change: 12, prefix: <ArrowUpOutlined className="text-emerald-500" />, suffix: '%', desc: 'Tăng so với tháng trước', color: 'text-emerald-500' },
-                ].map((metric, i) => (
-                    <Col xs={24} md={8} key={i}>
-                        <Card className="shadow-sm border-slate-100 rounded-2xl" bodyStyle={{ padding: '24px' }}>
-                            <Statistic
-                                title={<span className="text-slate-400 font-medium text-sm">{metric.label}</span>}
-                                value={metric.amount}
-                                precision={2}
-                                prefix="$"
-                                valueStyle={{ color: '#1e293b', fontWeight: 'bold', fontSize: '24px' }}
-                            />
-                            <div className="flex items-center gap-1 mt-2">
-                                {metric.prefix}
-                                <span className={`${metric.color} text-xs font-semibold`}>
-                                    {Math.abs(metric.change)}{metric.suffix}
-                                </span>
-                                <span className="text-slate-400 text-xs">{metric.desc}</span>
-                            </div>
-                        </Card>
-                    </Col>
-                ))}
-            </Row>
+  console.log(activeTab);
 
-            {/* Analytics Visual Section */}
-            <Row gutter={[24, 24]}>
-                {/* Spending by Category */}
-                <Col xs={24} lg={12}>
-                    <Card
-                        title={<span className="font-bold text-slate-800 text-base">Cơ cấu chi tiêu</span>}
-                        extra={
-                            <Space className="text-xs text-slate-400">
-                                <CalendarOutlined />
-                                <span>Tháng này</span>
-                            </Space>
-                        }
-                        className="shadow-sm border-slate-100 rounded-2xl h-full"
-                        bodyStyle={{ padding: '24px' }}
-                    >
-                        <div className="space-y-5">
-                            {categories.map((cat, i) => (
-                                <div key={i} className="space-y-1">
-                                    <div className="flex justify-between items-center text-sm">
-                                        <Text className="text-slate-600 font-medium">{cat.name}</Text>
-                                        <Text className="text-slate-800 font-bold">{cat.amount}</Text>
-                                    </div>
-                                    <Progress
-                                        percent={cat.pct}
-                                        strokeColor={cat.strokeColor}
-                                        trailColor="#f1f5f9"
-                                        showInfo={true}
-                                        strokeWidth={8}
-                                        className="m-0"
-                                    />
-                                </div>
-                            ))}
+  console.log(transactionsFacade.incomeAndExpenseSummary);
+  console.log(transactionsFacade.incomeAndExpenseCategorySummary);
+  console.log(transactionsFacade.incomeAndExpenseSummary?.savingsRate);
+
+  return (
+    <div className="space-y-6">
+      {/* Year selector */}
+      <div className="flex flex-wrap items-center gap-4">
+        <div className="flex items-center gap-2 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          {[2024, 2025, 2026].map((y) => (
+            <button
+              key={y}
+              onClick={() => setYear(y)}
+              className={`px-4 py-2.5 text-sm font-medium transition-colors ${year === y ? "bg-blue-600 text-white" : "text-slate-500 hover:bg-slate-50"}`}
+            >
+              {y}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex rounded-xl overflow-hidden border border-slate-200 bg-white shadow-sm">
+          {(
+            [
+              ["overview", "Tổng quan"],
+              ["category", "Danh mục"],
+            ] as const
+          ).map(([tab, label]) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`px-4 py-2.5 text-sm font-medium transition-colors ${activeTab === tab ? "bg-blue-600 text-white" : "text-slate-500 hover:bg-slate-50"}`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Key metrics */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
+          <p className="text-slate-400 text-xs mb-2">Tổng thu nhập</p>
+          <p className="text-emerald-600 font-bold text-xl">
+            {formatShortVND(
+              transactionsFacade.incomeAndExpenseSummary?.totalIncome ?? 0,
+            )}
+          </p>
+          <p className="text-slate-400 text-xs mt-1">
+            TB:{" "}
+            {formatShortVND(
+              transactionsFacade.incomeAndExpenseSummary?.avgMonthlyIncome ?? 0,
+            )}
+            /tháng
+          </p>
+        </div>
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
+          <p className="text-slate-400 text-xs mb-2">Tổng chi tiêu</p>
+          <p className="text-rose-500 font-bold text-xl">
+            {formatShortVND(
+              transactionsFacade.incomeAndExpenseSummary?.totalExpense ?? 0,
+            )}
+          </p>
+          <p className="text-slate-400 text-xs mt-1">
+            TB:{" "}
+            {formatShortVND(
+              transactionsFacade.incomeAndExpenseSummary?.avgMonthlyExpense ??
+                0,
+            )}
+            /tháng
+          </p>
+        </div>
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
+          <p className="text-slate-400 text-xs mb-2">Tiết kiệm ròng</p>
+          <p
+            className={`font-bold text-xl ${
+              transactionsFacade.incomeAndExpenseSummary?.netSavings >= 0
+                ? "text-emerald-600"
+                : "text-rose-500"
+            }`}
+          >
+            {transactionsFacade.incomeAndExpenseSummary?.netSavings >= 0
+              ? "+"
+              : ""}
+            {formatShortVND(
+              transactionsFacade.incomeAndExpenseSummary?.netSavings ?? 0,
+            )}
+          </p>
+          <div className="flex items-center gap-1 mt-1">
+            {transactionsFacade.incomeAndExpenseSummary?.netSavings >= 0 ? (
+              <TrendingUp size={12} className="text-emerald-500" />
+            ) : (
+              <TrendingDown size={12} className="text-rose-500" />
+            )}
+            <p className="text-slate-400 text-xs">Năm {year}</p>
+          </div>
+        </div>
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
+          <p className="text-slate-400 text-xs mb-2">Tỷ lệ tiết kiệm</p>
+          <p
+            className={`font-bold text-xl ${
+              transactionsFacade.incomeAndExpenseSummary?.savingsRate >= 20
+                ? "text-emerald-600"
+                : transactionsFacade.incomeAndExpenseSummary?.savingsRate >= 0
+                  ? "text-amber-500"
+                  : "text-rose-500"
+            }`}
+          >
+            {transactionsFacade.incomeAndExpenseSummary?.savingsRate > 0
+              ? "+" +
+                transactionsFacade.incomeAndExpenseSummary?.savingsRate?.toFixed(
+                  1,
+                )
+              : 0}
+            %
+          </p>
+          <div className="h-1.5 bg-slate-100 rounded-full mt-2 overflow-hidden">
+            <div
+              className={`h-full rounded-full ${transactionsFacade.incomeAndExpenseSummary?.savingsRate >= 20 ? "bg-emerald-400" : "bg-amber-400"}`}
+              style={{
+                width: `${Math.max(0, Math.min(transactionsFacade.incomeAndExpenseSummary?.savingsRate, 100))}%`,
+              }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Tab content */}
+      {activeTab === "overview" && (
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+          <h3 className="text-slate-800 font-semibold mb-1">
+            Dòng tiền theo tháng - {year}
+          </h3>
+          <p className="text-slate-400 text-xs mb-5">
+            So sánh thu nhập và chi tiêu hàng tháng
+          </p>
+          <BarChart
+            data={transactionsFacade.incomeAndExpenseSummary?.monthlyBars?.map(
+              (item) => ({
+                label: item.label,
+                month: `${item.month}`,
+                income: item.income,
+                expense: item.expense,
+              }),
+            )}
+            height={240}
+          />
+        </div>
+      )}
+
+      {activeTab === "category" && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Expense breakdown */}
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+            <h3 className="text-slate-800 font-semibold mb-1">
+              Chi tiêu theo danh mục
+            </h3>
+            <p className="text-slate-400 text-xs mb-4">Năm {year}</p>
+            <div className="flex flex-col items-center gap-5">
+              <DonutChart
+                segments={transactionsFacade?.incomeAndExpenseCategorySummary?.expenseItems
+                  ?.slice(0, 7)
+                  ?.map((e) => ({
+                    value: e.amount,
+                    color: e.color ?? "#94A3B8",
+                    label: e.categoryName,
+                  }))}
+                size={160}
+                strokeWidth={26}
+                centerLabel={formatShortVND(
+                  transactionsFacade?.incomeAndExpenseCategorySummary
+                    ?.totalExpense,
+                )}
+                centerSubLabel="tổng chi"
+              />
+              <div className="w-full space-y-2.5">
+                {transactionsFacade.incomeAndExpenseCategorySummary?.expenseItems
+                  ?.slice(0, 7)
+                  ?.map((item, i) => (
+                    <div key={i} className="flex items-center gap-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-slate-600 text-xs font-medium">
+                            {item.categoryName}
+                          </span>
+                          <span className="text-slate-500 text-xs">
+                            {item.percentage.toFixed(1)}%
+                          </span>
                         </div>
-                    </Card>
-                </Col>
-
-                {/* Net Cashflow Trends */}
-                <Col xs={24} lg={12}>
-                    <Card
-                        title={<span className="font-bold text-slate-800 text-base">Biến động dòng tiền ròng</span>}
-                        extra={
-                            <Space className="text-xs text-slate-400">
-                                <CalendarOutlined />
-                                <span>6 tháng qua</span>
-                            </Space>
-                        }
-                        className="shadow-sm border-slate-100 rounded-2xl h-full"
-                        bodyStyle={{ padding: '24px' }}
-                    >
-                        <div className="flex flex-col justify-between h-72">
-                            {/* Visual columns mockup using pure CSS flex rows */}
-                            <div className="flex-1 flex items-end justify-between px-4 pb-4 border-b border-l border-slate-100">
-                                {chartCols.map((col, i) => (
-                                    <div key={i} className="flex flex-col items-center gap-2 w-10">
-                                        <div className="flex items-end gap-1.5 h-44 w-full justify-center">
-                                            <div
-                                                className="w-3 bg-blue-500 rounded-t-sm transition-all duration-500 hover:opacity-85"
-                                                style={{ height: `${col.income * 0.9}%` }}
-                                            />
-                                            <div
-                                                className="w-3 bg-rose-400 rounded-t-sm transition-all duration-500 hover:opacity-85"
-                                                style={{ height: `${col.expense * 0.9}%` }}
-                                            />
-                                        </div>
-                                        <span className="text-[10px] text-slate-400 font-medium">{col.month}</span>
-                                    </div>
-                                ))}
-                            </div>
-                            <div className="flex justify-center gap-6 text-xs pt-4">
-                                <Space align="center" size={6}>
-                                    <span className="w-3 h-3 bg-blue-500 rounded-full inline-block" />
-                                    <span className="text-slate-500 font-medium">Thu nhập</span>
-                                </Space>
-                                <Space align="center" size={6}>
-                                    <span className="w-3 h-3 bg-rose-400 rounded-full inline-block" />
-                                    <span className="text-slate-500 font-medium">Chi tiêu</span>
-                                </Space>
-                            </div>
+                        <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                          <div
+                            className="h-full rounded-full"
+                            style={{
+                              width: `${item.percentage}%`,
+                              background: item.color ?? "#94A3B8",
+                            }}
+                          />
                         </div>
-                    </Card>
-                </Col>
-            </Row>
-        </Space>
-    );
+                      </div>
+                      <span className="text-slate-700 text-xs font-semibold w-16 text-right">
+                        {formatShortVND(item.amount)}
+                      </span>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Income breakdown */}
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+            <h3 className="text-slate-800 font-semibold mb-1">
+              Thu nhập theo danh mục
+            </h3>
+            <p className="text-slate-400 text-xs mb-4">Năm {year}</p>
+            <div className="flex flex-col items-center gap-5">
+              <DonutChart
+                segments={transactionsFacade.incomeAndExpenseCategorySummary?.incomeItems
+                  ?.slice(0, 7)
+                  ?.map((e) => ({
+                    value: e.amount,
+                    color: e.color ?? "#10B981",
+                    label: e.categoryName,
+                  }))}
+                size={160}
+                strokeWidth={26}
+                centerLabel={formatShortVND(
+                  transactionsFacade.incomeAndExpenseCategorySummary
+                    ?.totalIncome,
+                )}
+                centerSubLabel="tổng thu"
+              />
+              <div className="w-full space-y-2.5">
+                {transactionsFacade.incomeAndExpenseCategorySummary?.incomeItems
+                  ?.slice(0, 7)
+                  ?.map((item, i) => (
+                    <div key={i} className="flex items-center gap-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-slate-600 text-xs font-medium">
+                            {item.categoryName}
+                          </span>
+                          <span className="text-slate-500 text-xs">
+                            {item.percentage.toFixed(1)}%
+                          </span>
+                        </div>
+                        <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-emerald-400 rounded-full"
+                            style={{ width: `${item.percentage}%` }}
+                          />
+                        </div>
+                      </div>
+                      <span className="text-slate-700 text-xs font-semibold w-16 text-right">
+                        {formatShortVND(item.amount)}
+                      </span>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === "trend" && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* {monthlyData
+            .map((m, i) => {
+              const net = m.income - m.expense;
+              const hasData = m.income > 0 || m.expense > 0;
+              return hasData ? (
+                <div
+                  key={i}
+                  className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100"
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="text-slate-700 font-semibold text-sm">
+                      {m.label} {year}
+                    </h4>
+                    <span
+                      className={`text-xs font-semibold px-2 py-1 rounded-full ${net >= 0 ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-500"}`}
+                    >
+                      {net >= 0 ? "+" : ""}
+                      {formatShortVND(net)}
+                    </span>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs text-slate-400 w-12">Thu</span>
+                      <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-emerald-400 rounded-full"
+                          style={{
+                            width: `${m.income > 0 ? Math.min((m.income / Math.max(m.income, m.expense)) * 100, 100) : 0}%`,
+                          }}
+                        />
+                      </div>
+                      <span className="text-xs font-medium text-emerald-600 w-16 text-right">
+                        {formatShortVND(m.income)}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs text-slate-400 w-12">Chi</span>
+                      <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-rose-400 rounded-full"
+                          style={{
+                            width: `${m.expense > 0 ? Math.min((m.expense / Math.max(m.income, m.expense)) * 100, 100) : 0}%`,
+                          }}
+                        />
+                      </div>
+                      <span className="text-xs font-medium text-rose-500 w-16 text-right">
+                        {formatShortVND(m.expense)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ) : null;
+            })
+            .filter(Boolean)} */}
+        </div>
+      )}
+    </div>
+  );
 }

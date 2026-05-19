@@ -12,5 +12,6 @@ export const useTransactionsFacade = () => {
         getBudgetSummary: (params: BudgetQueryModel) => dispatch(action.getBudgetSummary(params)),
         getIncomeAndExpenseSummary: (params: BudgetQueryModel) => dispatch(action.getIncomeAndExpenseSummary(params)),
         getIncomeAndExpenseCategorySummary: (params: BudgetQueryModel) => dispatch(action.getIncomeAndExpenseCategorySummary(params)),
+        getAccounts: () => dispatch(action.getAccounts()),
     };
 };
