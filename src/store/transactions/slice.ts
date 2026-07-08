@@ -5,6 +5,7 @@ import { Slice } from '../slice';
 import { Action } from '../action';
 import { EStatusState } from '../../models/indexs';
 import type { Pagination } from '../../models/api';
+import { customMessage } from '../../main';
 
 export const name = 'Transactions';
 
@@ -37,6 +38,10 @@ export const EStatusTransactions = {
     getAccountsPending: 'getAccounts.pending',
     getAccountsFulfilled: 'getAccounts.fulfilled',
     getAccountsRejected: 'getAccounts.rejected',
+
+    addBudgetCategoryPending: 'addBudgetCategory.pending',
+    addBudgetCategoryFulfilled: 'addBudgetCategory.fulfilled',
+    addBudgetCategoryRejected: 'addBudgetCategory.rejected',
 } as const;
 
 export type EStatusTransactions = typeof EStatusTransactions[keyof typeof EStatusTransactions];
@@ -57,6 +62,9 @@ export class Transaction {
     public note?: string;
     public direction?: string;
     public source?: string;
+    constructor() {
+        return Transaction as any;
+    }
 }
 
 export class TransactionQueryModel {
@@ -82,11 +90,11 @@ export class Category {
 
 export class TransactionDashboard {
     public monthly?: {
-        year: number;
-        month: number;
-        totalIn: number;
-        totalOut: number;
-        netBalance: number;
+        year: number | any;
+        month: number | any;
+        totalIn: number | any;
+        totalOut: number | any;
+        netBalance: number | any;
         breakdown: {
             categoryName: string;
             color: string;
@@ -130,32 +138,26 @@ export class TransactionDashboard {
 }
 
 export class BudgetSummary {
-    public year?: number;
-    public month?: number;
-    public total?: {
-        budgetId: number;
-        categoryName: string;
-        year: number;
-        month: number;
-        limitAmount: number;
-        spentAmount: number;
-        remainingAmount: number;
-        usagePercent: number;
-        alertTriggered: boolean;
-    }
-    public items?: {
-        budgetId: number;
-        categoryName: string;
-        year: number;
-        month: number;
-        limitAmount: number;
-        spentAmount: number;
-        remainingAmount: number;
-        usagePercent: number;
-        alertTriggered: boolean;
-    }[];
-    public alertCount?: number;
+    public year?: number | any;
+    public month?: number | any;
+    public label?: string | any;
+    public totalLimit?: number | any;
+    public totalSpent?: number | any;
+    public totalRemaining?: number | any;
+    public overBudgetCount?: number;
     public totalCount?: number;
+    public overallUsagePercent?: number | any;
+    public categories?: {
+        budgetId: number;
+        categoryName: string;
+        year: number;
+        month: number;
+        limitAmount: number;
+        spentAmount: number;
+        remainingAmount: number;
+        usagePercent: number;
+        alertTriggered: boolean;
+    }[]
 }
 
 export class IncomeAndExpenseSummary {
@@ -207,11 +209,20 @@ export interface TransactionsState {
     isLoading?: boolean;
     listTransactions?: Pagination<Transaction>;
     listCategories?: Category[];
-    transactionDashboard?: TransactionDashboard;
-    budgetSummary?: BudgetSummary;
-    incomeAndExpenseSummary?: IncomeAndExpenseSummary;
-    incomeAndExpenseCategorySummary?: IncomeAndExpenseCategorySummary;
-    accounts?: Account[];
+    transactionDashboard?: TransactionDashboard | any;
+    budgetSummary?: BudgetSummary | any;
+    incomeAndExpenseSummary?: IncomeAndExpenseSummary | any;
+    incomeAndExpenseCategorySummary?: IncomeAndExpenseCategorySummary | any;
+    accounts?: Account[] | any;
+    status?: any;
+}
+
+export class BudgetCategoryModel {
+    public categoryId?: number;
+    public limitAmount?: number;
+    public year?: number;
+    public month?: number;
+    public alertThreshold?: number;
 }
 
 export class BudgetQueryModel {
@@ -235,6 +246,15 @@ export const action = {
     }),
     getBudgetSummary: createAsyncThunk(name + 'getBudgetSummary', async (params: BudgetQueryModel) => {
         const res = await API.get(`/personal-finance/budgets`, params);
+        return res;
+    }),
+    addBudgetCategory: createAsyncThunk(name + 'addBudgetCategory', async (values: BudgetCategoryModel) => {
+        const res = await API.post(`/personal-finance/budgets`, values);
+        if (res) {
+            customMessage.success("Thêm ngân sách thành công");
+        } else {
+            customMessage.error("Thêm ngân sách thất bại");
+        }
         return res;
     }),
     getIncomeAndExpenseSummary: createAsyncThunk(name + 'getIncomeAndExpenseSummary', async (params: BudgetQueryModel) => {
@@ -356,6 +376,21 @@ export const transactionsSlice = createSlice(
         })
         builder.addCase(action.getAccounts.rejected, (state: TransactionsState) => {
             state.status = EStatusTransactions.getAccountsRejected;
+            state.isLoading = false;
+        })
+
+        builder.addCase(action.addBudgetCategory.pending, (state: TransactionsState) => {
+            state.isLoading = true;
+            state.status = EStatusTransactions.addBudgetCategoryPending;
+        })
+        builder.addCase(action.addBudgetCategory.fulfilled, (state: TransactionsState, action: PayloadAction<any>) => {
+            if (action.payload) {
+                state.status = EStatusTransactions.addBudgetCategoryFulfilled;
+            } else state.status = EStatusState.idle;
+            state.isLoading = false;
+        })
+        builder.addCase(action.addBudgetCategory.rejected, (state: TransactionsState) => {
+            state.status = EStatusTransactions.addBudgetCategoryRejected;
             state.isLoading = false;
         })
     }),

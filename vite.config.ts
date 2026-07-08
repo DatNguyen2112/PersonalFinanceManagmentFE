@@ -17,5 +17,8 @@ export default defineConfig({
     port: 3000,     // có thể đổi sang 5173 hoặc 3001
     open: true,     // tự động mở trình duyệt khi chạy
     host: true      // cho phép truy cập từ bên ngoài (IP LAN)
-  }
+  },
+  define: {
+    global: "globalThis",   // ← fixes "global is not defined" for SockJS
+  },
 })

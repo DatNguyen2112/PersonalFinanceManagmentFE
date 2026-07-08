@@ -15,9 +15,9 @@ export default function Login() {
 
     useEffect(() => {
         if (globalFacade.status === EStatusGlobal.loginFulfilled) {
-            navigate(`${routerLinks('Dashboard')}`);
+            navigate(routerLinks('Dashboard'), { replace: true });
         }
-    }, [globalFacade.status]);
+    }, [globalFacade.status, navigate]);
 
     const handleLogin = () => {
         login({
@@ -81,7 +81,7 @@ export default function Login() {
                         {/* Submit */}
                         <button
                             onClick={handleLogin}
-                            type="submit"
+                            type="button"
                             disabled={globalFacade.isLoading}
                             className="w-full py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-sm font-semibold rounded-xl transition-all shadow-lg shadow-blue-600/30 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                         >

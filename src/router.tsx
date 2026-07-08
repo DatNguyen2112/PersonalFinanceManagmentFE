@@ -1,170 +1,85 @@
-import { Spin } from 'antd';
-import React, { type FC, Suspense } from 'react';
-import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
-import { routerLinks } from './router-links';
-import { keyToken } from './variable';
+import { Spin } from "antd";
+import React, { type FC, Suspense } from "react";
+import { Navigate, Outlet, Route, Routes } from "react-router-dom";
+import { routerLinks } from "./router-links";
+import NonAuthLayout from "./layout/auth";
+import ProtectedLayout from "./layout/ProtectedLayout";
 
-interface NormalPage {
-    path: string;
-    component: FC;
-}
+const normalizePath = (path: string) => path?.trim().replace(/^\/+/, "") ?? "";
 
-interface LayoutPage {
-    layout: FC<{ children?: React.ReactNode }>;
-    isPublic: boolean;
-    path?: string;
-    child: (NormalPage | LayoutPage)[];
-}
+const LazyWithSuspense: FC<{ component: FC }> = ({ component: Component }) => (
+  <Suspense
+    fallback={
+      <Spin>
+        <div className="!w-screen !h-screen" />
+      </Spin>
+    }
+  >
+    <Component />
+  </Suspense>
+);
 
-const pages = [
-    {
-        layout: React.lazy(() => import('../src/layout/auth')),
-        isPublic: true,
-        child: [
-            {
-                path: routerLinks('Login'),
-                component: React.lazy(() => import('../src/pages/login')),
-            },
-            {
-                path: routerLinks('Register'),
-                component: React.lazy(() => import('../src/pages/register')),
-            },
-        ],
-    },
-    {
-        layout: React.lazy(() => import('../src/layout/MainLayout')),
-        isPublic: false,
-        child: [
-            {
-                path: routerLinks('Dashboard'),
-                component: React.lazy(() => import('../src/pages/Dashboard')),
-            },
-            {
-                path: routerLinks('Transactions'),
-                component: React.lazy(() => import('../src/pages/Transactions')),
-            },
-            {
-                path: routerLinks('Budget'),
-                component: React.lazy(() => import('../src/pages/Budget')),
-            },
-            {
-                path: routerLinks('Reports'),
-                component: React.lazy(() => import('../src/pages/Reports')),
-            },
-            {
-                path: routerLinks('Wallets'),
-                component: React.lazy(() => import('../src/pages/Wallets')),
-            },
-        ],
-    },
-    // {
-    //     layout: React.lazy(() => import('../src/layouts/admin')),
-    //     isPublic: false,
-    //     child: [
-    //         // {
-    //         //   path: '/',
-    //         //   component: routerLinks('Dashboard'),
-    //         // },
-    //         // {
-    //         //   path: '/dashboard',
-    //         //   component: React.lazy(() => import('../src/pages/quan-tri-nguoi-dung/quan-ly-nguoi-dung')),
-    //         // },
-    //         {
-    //             path: routerLinks('Code'),
-    //             component: React.lazy(() => import('../src/pages/codetype')),
-    //         },
-    //         {
-    //             path: routerLinks('SystemUserAdmin'),
-    //             component: React.lazy(() => import('../src/pages/quan-tri-nguoi-dung/users')),
-    //         },
-    //         {
-    //             path: routerLinks('SystemUserAdmin') + '/add-user-map-role/:id',
-    //             component: React.lazy(() => import('../src/pages/quan-tri-nguoi-dung/users/add-right-map-role-user')),
-    //         },
-    //         {
-    //             path: routerLinks('Project'),
-    //             component: React.lazy(() => import('../src/pages/project')),
-    //         },
-    //         {
-    //             path: routerLinks('ResourceView') + '/:id',
-    //             component: React.lazy(() => import('../src/pages/resource-view')),
-    //         },
-    //         {
-    //             path: routerLinks('Navigation'),
-    //             component: React.lazy(() => import('../src/pages/navigation')),
-    //         },
-    //         {
-    //             path: routerLinks('RightMapRole'),
-    //             component: React.lazy(() => import('../src/pages/right-map-role')),
-    //         },
-    //         {
-    //             path: routerLinks('Roles'),
-    //             component: React.lazy(() => import('../src/pages/quan-tri-nguoi-dung/quan-ly-nhom-nguoi-dung')),
-    //         },
-    //     ],
-    // },
-];
-
-const renderPages = (pages: (NormalPage | LayoutPage)[]) => {
-    return (
-        <>
-            {pages.map((page, index) => {
-                const path = page.path?.trim().replace(/^\/+/, '') ?? '';
-
-                if ('layout' in page) {
-                    if (page.isPublic || !!localStorage.getItem(keyToken)) {
-                        return (
-                            <Route
-                                key={index}
-                                element={
-                                    <page.layout>
-                                        <Outlet />
-                                    </page.layout>
-                                }
-                                path={path}
-                            >
-                                {renderPages(page.child || [])}
-                            </Route>
-                        );
-                    }
-
-                    return (
-                        <Route key={index} element={<Navigate to={`${routerLinks('Login')}`} />} path={path}>
-                            {renderPages(page.child || [])}
-                        </Route>
-                    );
-                }
-
-                return (
-                    <Route
-                        key={index}
-                        index={!path}
-                        element={
-                            <Suspense
-                                fallback={
-                                    <Spin>
-                                        <div className="!w-screen !h-screen" />
-                                    </Spin>
-                                }
-                            >
-                                {<page.component />}
-                            </Suspense>
-                        }
-                        path={path}
-                    ></Route>
-                );
-            })}
-        </>
-    );
-};
+// Keep lazy components at module scope to avoid remounting pages on parent re-renders.
+const LoginPage = React.lazy(() => import("./pages/login"));
+const RegisterPage = React.lazy(() => import("./pages/register"));
+const DashboardPage = React.lazy(() => import("./pages/Dashboard"));
+const TransactionsPage = React.lazy(() => import("./pages/Transactions"));
+const BudgetPage = React.lazy(() => import("./pages/Budget"));
+const ReportsPage = React.lazy(() => import("./pages/Reports"));
+const WalletsPage = React.lazy(() => import("./pages/Wallets"));
 
 const Pages: FC = () => {
-    return (
-        <Routes>
-            {renderPages(pages as any)}
-            <Route path="*" element={<Navigate to={`${routerLinks('Login')}`} replace />} />
-        </Routes>
-    );
+  return (
+    <Routes>
+      {/* Default route */}
+      <Route
+        path="/"
+        element={<Navigate to={routerLinks("Login")} replace />}
+      />
+
+      {/* Non-auth layout (login/register) */}
+      <Route element={<NonAuthLayout>{<Outlet />}</NonAuthLayout>}>
+        <Route
+          path={normalizePath(routerLinks("Login"))}
+          element={<LazyWithSuspense component={LoginPage} />}
+        />
+        <Route
+          path={normalizePath(routerLinks("Register"))}
+          element={<LazyWithSuspense component={RegisterPage} />}
+        />
+      </Route>
+
+      {/* Auth layout (protected) */}
+      <Route element={<ProtectedLayout>{<Outlet />}</ProtectedLayout>}>
+        <Route
+          path={normalizePath(routerLinks("Dashboard"))}
+          element={<LazyWithSuspense component={DashboardPage} />}
+        />
+        <Route
+          path={normalizePath(routerLinks("Transactions"))}
+          element={<LazyWithSuspense component={TransactionsPage} />}
+        />
+        <Route
+          path={normalizePath(routerLinks("Budget"))}
+          element={<LazyWithSuspense component={BudgetPage} />}
+        />
+        <Route
+          path={normalizePath(routerLinks("Reports"))}
+          element={<LazyWithSuspense component={ReportsPage} />}
+        />
+        <Route
+          path={normalizePath(routerLinks("Wallets"))}
+          element={<LazyWithSuspense component={WalletsPage} />}
+        />
+      </Route>
+
+      {/* Fallback */}
+      <Route
+        path="*"
+        element={<Navigate to={routerLinks("Login")} replace />}
+      />
+    </Routes>
+  );
 };
 
 export default Pages;

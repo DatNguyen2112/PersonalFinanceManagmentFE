@@ -93,7 +93,7 @@ export default function Reports() {
             TB:{" "}
             {formatShortVND(
               transactionsFacade.incomeAndExpenseSummary?.avgMonthlyExpense ??
-                0,
+              0,
             )}
             /tháng
           </p>
@@ -101,11 +101,10 @@ export default function Reports() {
         <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
           <p className="text-slate-400 text-xs mb-2">Tiết kiệm ròng</p>
           <p
-            className={`font-bold text-xl ${
-              transactionsFacade.incomeAndExpenseSummary?.netSavings >= 0
-                ? "text-emerald-600"
-                : "text-rose-500"
-            }`}
+            className={`font-bold text-xl ${transactionsFacade.incomeAndExpenseSummary?.netSavings >= 0
+              ? "text-emerald-600"
+              : "text-rose-500"
+              }`}
           >
             {transactionsFacade.incomeAndExpenseSummary?.netSavings >= 0
               ? "+"
@@ -126,19 +125,18 @@ export default function Reports() {
         <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
           <p className="text-slate-400 text-xs mb-2">Tỷ lệ tiết kiệm</p>
           <p
-            className={`font-bold text-xl ${
-              transactionsFacade.incomeAndExpenseSummary?.savingsRate >= 20
-                ? "text-emerald-600"
-                : transactionsFacade.incomeAndExpenseSummary?.savingsRate >= 0
-                  ? "text-amber-500"
-                  : "text-rose-500"
-            }`}
+            className={`font-bold text-xl ${transactionsFacade.incomeAndExpenseSummary?.savingsRate >= 20
+              ? "text-emerald-600"
+              : transactionsFacade.incomeAndExpenseSummary?.savingsRate >= 0
+                ? "text-amber-500"
+                : "text-rose-500"
+              }`}
           >
             {transactionsFacade.incomeAndExpenseSummary?.savingsRate > 0
               ? "+" +
-                transactionsFacade.incomeAndExpenseSummary?.savingsRate?.toFixed(
-                  1,
-                )
+              transactionsFacade.incomeAndExpenseSummary?.savingsRate?.toFixed(
+                1,
+              )
               : 0}
             %
           </p>
@@ -164,7 +162,7 @@ export default function Reports() {
           </p>
           <BarChart
             data={transactionsFacade.incomeAndExpenseSummary?.monthlyBars?.map(
-              (item) => ({
+              (item: any) => ({
                 label: item.label,
                 month: `${item.month}`,
                 income: item.income,
@@ -188,7 +186,7 @@ export default function Reports() {
               <DonutChart
                 segments={transactionsFacade?.incomeAndExpenseCategorySummary?.expenseItems
                   ?.slice(0, 7)
-                  ?.map((e) => ({
+                  ?.map((e: any) => ({
                     value: e.amount,
                     color: e.color ?? "#94A3B8",
                     label: e.categoryName,
@@ -204,7 +202,7 @@ export default function Reports() {
               <div className="w-full space-y-2.5">
                 {transactionsFacade.incomeAndExpenseCategorySummary?.expenseItems
                   ?.slice(0, 7)
-                  ?.map((item, i) => (
+                  ?.map((item: any, i: any) => (
                     <div key={i} className="flex items-center gap-3">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between mb-1">
@@ -244,7 +242,7 @@ export default function Reports() {
               <DonutChart
                 segments={transactionsFacade.incomeAndExpenseCategorySummary?.incomeItems
                   ?.slice(0, 7)
-                  ?.map((e) => ({
+                  ?.map((e: any) => ({
                     value: e.amount,
                     color: e.color ?? "#10B981",
                     label: e.categoryName,
@@ -260,7 +258,7 @@ export default function Reports() {
               <div className="w-full space-y-2.5">
                 {transactionsFacade.incomeAndExpenseCategorySummary?.incomeItems
                   ?.slice(0, 7)
-                  ?.map((item, i) => (
+                  ?.map((item: any, i: any) => (
                     <div key={i} className="flex items-center gap-3">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between mb-1">
