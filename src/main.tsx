@@ -1,5 +1,6 @@
 import { StrictMode, useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
+import { registerSW } from 'virtual:pwa-register'
 import './index.css'
 import type { MessageInstance } from 'antd/es/message/interface';
 import type { NotificationInstance } from 'antd/es/notification/interface';
@@ -13,6 +14,8 @@ export let customMessage: MessageInstance;
 export let customNotification: NotificationInstance;
 
 const store = setupStore();
+
+registerSW({ immediate: true });
 
 // ✅ Separate component inside <App> context
 const AppContent = () => {

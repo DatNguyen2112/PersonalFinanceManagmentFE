@@ -1,13 +1,18 @@
-// npm install @stomp/stompjs sockjs-client axios
+// npm install @stomp/stompjs axios
 // Drop this component anywhere in your layout header
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Client } from "@stomp/stompjs";
 import axios from "axios";
 import { useTransactionsFacade } from "../store/transactions/facade";
+import { linkApi, linkWs } from "../variable";
+import { routerLinks } from "../router-links";
+import {
+    requestNotificationPermission,
+    showDeviceNotification,
+} from "../utils/pwa-notifications";
 
-const API = "/api/v1/notifications";
-// const WS_URL = "http://localhost:8080/ws";
+const API = `${linkApi}/notifications`;
 
 // ── Types ───────────────────────────────────────────────────────────────────
 
@@ -140,29 +145,46 @@ export default function NotificationBell({ userId, token }: NotificationBellProp
     // ── Prepend Notification callback ──────────────────────────────────────────
 
     const prependNotification = useCallback((wsMsg: WSMessage) => {
+        const type = wsMsg.type || "TRANSACTION";
         const newItem: Notification = {
-            id: Date.now(),          // temp id until page reload
-            type: wsMsg.type || "TRANSACTION",
+            id: Date.now(),
+            type,
             title: wsMsg.title,
             message: wsMsg.message,
             read: false,
             createdAt: new Date().toISOString(),
-            isNew: true,               // triggers flash animation
+            isNew: true,
         };
         setItems(prev => [newItem, ...(prev || [])]);
         setUnread(prev => prev + 1);
+
+        const cfg = TYPE_CONFIG[type] ?? TYPE_CONFIG.TRANSACTION;
+        const targetUrl =
+            type === "BUDGET_ALERT" ? routerLinks("Budget") : routerLinks("Transactions");
+
+        void showDeviceNotification({
+            title: wsMsg.title || cfg.label,
+            body: wsMsg.message,
+            tag: `finance-${type.toLowerCase()}`,
+            url: targetUrl,
+        });
     }, []);
+
+    // Request device notification permission when user is logged in.
+    useEffect(() => {
+        if (!token) return;
+        void requestNotificationPermission();
+    }, [token]);
 
     // ── WebSocket — receive real-time pushes ────────────────────────────────
 
     useEffect(() => {
-        if (!userId) return;
+        if (!userId || !token) return;
+
         const client = new Client({
-            webSocketFactory: () => new WebSocket(
-                "wss://finance.pro.vn/ws"
-            ),
+            brokerURL: linkWs,
             connectHeaders: {
-                Authorization: `Bearer ${token}`,   // send JWT on WS handshake
+                Authorization: `Bearer ${token}`,
             },
             reconnectDelay: 5000,
             onConnect: () => {
@@ -171,8 +193,7 @@ export default function NotificationBell({ userId, token }: NotificationBellProp
                         const msg = JSON.parse(body) as WSMessage;
                         if (!msg.type) msg.type = "TRANSACTION";
                         prependNotification(msg);
-                        
-                        // Automatically reload transaction table, dashboard and accounts
+
                         facadeRef.current.getListTransaction({ page: 1, size: 20 });
                         facadeRef.current.getTransactionDashboard();
                         facadeRef.current.getAccounts();
@@ -185,11 +206,10 @@ export default function NotificationBell({ userId, token }: NotificationBellProp
                         const msg = JSON.parse(body) as WSMessage;
                         if (!msg.type) msg.type = "BUDGET_ALERT";
                         prependNotification(msg);
-                        
-                        // Automatically reload budget summary and dashboard
+
                         facadeRef.current.getBudgetSummary({
                             year: new Date().getFullYear(),
-                            month: new Date().getMonth() + 1
+                            month: new Date().getMonth() + 1,
                         });
                         facadeRef.current.getTransactionDashboard();
                     } catch (e) {
@@ -204,7 +224,7 @@ export default function NotificationBell({ userId, token }: NotificationBellProp
         return () => {
             client.deactivate();
         };
-    }, [userId, prependNotification]);
+    }, [userId, token, prependNotification]);
 
     // ── Open / close ─────────────────────────────────────────────────────────
 
